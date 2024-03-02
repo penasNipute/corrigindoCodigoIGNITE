@@ -23,20 +23,33 @@ app.post("/repositories", (request, response) => {
     likes: 0
   };
 
-  return response.json(repository);
+  repositories.push(repository)
+
+  return response.status(201).json(repository);
 });
 
 app.put("/repositories/:id", (request, response) => {
   const { id } = request.params;
-  const updatedRepository = request.body;
+  let { title, url, techs } = request.body;
+  
+  repositoryIndex = repositories.findIndex(repository => repository.id === id);
 
-  repositoryIndex = repositories.findindex(repository => repository.id === id);
-
-  if (repositoryIndex < 0) {
+  if (repositoryIndex === -1) {
     return response.status(404).json({ error: "Repository not found" });
   }
+  if(!title){
+    title = repositories[repositoryIndex].title
+  }
 
-  const repository = { ...repositories[repositoryIndex], ...updatedRepository };
+  if(!url){
+    url = repositories[repositoryIndex].url
+  }
+
+  if(!techs){
+    techs = repositories[repositoryIndex].techs
+  }
+
+  const repository = { ...repositories[repositoryIndex], title, url, techs };
 
   repositories[repositoryIndex] = repository;
 
@@ -47,8 +60,8 @@ app.delete("/repositories/:id", (request, response) => {
   const { id } = request.params;
 
   repositoryIndex = repositories.findIndex(repository => repository.id === id);
-
-  if (repositoryIndex > 0) {
+  console.log(repositoryIndex)
+  if (repositoryIndex === -1) {
     return response.status(404).json({ error: "Repository not found" });
   }
 
@@ -62,13 +75,13 @@ app.post("/repositories/:id/like", (request, response) => {
 
   repositoryIndex = repositories.findIndex(repository => repository.id === id);
 
-  if (repositoryIndex < 0) {
+  if (repositoryIndex === -1) {
     return response.status(404).json({ error: "Repository not found" });
   }
+  console.log(repositories[repositoryIndex].likes)
+  repositories[repositoryIndex].likes +=1;
 
-  const likes = ++repositories[repositoryIndex].likes;
-
-  return response.json('likes');
+  return response.json(repositories[repositoryIndex]);
 });
 
 module.exports = app;
